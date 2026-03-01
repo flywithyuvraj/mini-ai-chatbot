@@ -1,39 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Mini AI Chatbot</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #f2f2f2;
-      padding: 20px;
-    }
-    .chatbox {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: auto;
-    }
-    #messages {
-      min-height: 150px;
-      margin-bottom: 10px;
-    }
-    input {
-      width: 70%;
-      padding: 8px;
-    }
-    button {
-      padding: 8px;
-    }
-  </style>
-</head>
+async function send() {
+  var userInputField = document.getElementById("userInput");
+  var userMessage = userInputField.value;
+  var chat = document.getElementById("messages");
 
-<body>
+  if (userMessage.trim() === "") return;
 
-<div class="chatbox">
-  <h3>🤖 Mini AI Chatbot</h3>
+  chat.innerHTML += "<b>You:</b> " + userMessage + "<br>";
+  userInputField.value = "";
 
+  chat.innerHTML += "<b id='loading' style='color: gray;'>Bot: Soch raha hai... 🤔<br></b>";
+
+  // API Key (dhyaan rahe koi extra space na ho)
+  var apiKey = "AIzaSyAWUSznUOoT2tMyIZGJEIal-5tgYp9PzIs"; 
+  var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
+
+  try {
+    let response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: userMessage }] }]
+      })
+    });
+
+    let data = await response.json();
+    document.getElementById('loading').remove();
+    
+    // Agar Google API koi error bhejta hai (jaise Invalid Key)
+    if (data.error) {
+        chat.innerHTML += "<b style='color: red;'>API Error: " + data.error.message + "</b><br><br>";
+        return;
+    }
+
+    let botReply = data.candidates[0].content.parts[0].text;
+    chat.innerHTML += "<b>🤖 Bot:</b> " + botReply.replace(/\n/g, "<br>") + "<br><br>";
+
+  } catch (error) {
+    // Agar internet/app ka koi error ho
+    if(document.getElementById('loading')) document.getElementById('loading').remove();
+    chat.innerHTML += "<b style='color: red;'>App Error: " + error.message + "</b><br><br>";
+  }
+}
   <div id="messages"></div>
 
   <input type="text" id="userInput" placeholder="Type message..." />
