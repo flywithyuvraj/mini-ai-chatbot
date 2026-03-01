@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My First AI Website</title>
+</head>
+<body>
+
+  <h2>🤖 Mini AI Chatbot</h2>
+
+  <input type="text" id="userInput" placeholder="Type here..." />
+  <button onclick="chat()">Send</button>
+
+  <p id="botReply"></p>
+
+  <script>
+    function chat() {
+      var userText = document.getElementById("userInput").value;
+
+      if (userText == "hi") {
+        document.getElementById("botReply").innerHTML =
+        "Bot: Hi 😊 kaise ho?";
+      } else {
+        document.getElementById("botReply").innerHTML =
+        "Bot: Main seekh raha hoon 🤖";
+      }
+    }
+  </script>
+
+</body>
+</html>
