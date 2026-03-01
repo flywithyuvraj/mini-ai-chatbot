@@ -1,30 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My First AI Website</title>
+  <title>Mini AI Chatbot</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    .chatbox {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+    }
+    #messages {
+      min-height: 150px;
+      margin-bottom: 10px;
+    }
+    input {
+      width: 70%;
+      padding: 8px;
+    }
+    button {
+      padding: 8px;
+    }
+  </style>
 </head>
+
 <body>
 
-  <h2>🤖 Mini AI Chatbot</h2>
+<div class="chatbox">
+  <h3>🤖 Mini AI Chatbot</h3>
 
-  <input type="text" id="userInput" placeholder="Type here..." />
-  <button onclick="chat()">Send</button>
+  <div id="messages"></div>
 
-  <p id="botReply"></p>
+  <input type="text" id="userInput" placeholder="Type message..." />
+  <button onclick="send()">Send</button>
+</div>
 
-  <script>
-    function chat() {
-      var userText = document.getElementById("userInput").value;
+<script>
+  async function send() {
+  var userInputField = document.getElementById("userInput");
+  var userMessage = userInputField.value;
+  var chat = document.getElementById("messages");
 
-      if (userText == "hi") {
-        document.getElementById("botReply").innerHTML =
-        "Bot: Hi 😊 kaise ho?";
-      } else {
-        document.getElementById("botReply").innerHTML =
-        "Bot: Main seekh raha hoon 🤖";
-      }
-    }
-  </script>
+  // Agar user ne kuch nahi likha toh wapas jao
+  if (userMessage.trim() === "") return;
+
+  // 1. User ka message screen par dikhao
+  chat.innerHTML += "<b>You:</b> " + userMessage + "<br>";
+  userInputField.value = ""; // Dabba khali karo
+
+  // 2. Loading animation dikhao (Kyunki AI sochne me 1-2 second leta hai)
+  chat.innerHTML += "<b id='loading' style='color: gray;'>Bot: Soch raha hai... 🤔<br></b>";
+
+  // 3. API Key aur URL (Aapka Password aur Address)
+  var apiKey = "AIzaSyAWUSznUOoT2tMyIZGJEIal-5tgYp9PzIs"; 
+  var url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+  // 4. fetch() ka jadoo (Internet se API ko bulana)
+  try {
+    let response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: userMessage }] }]
+      })
+    });
+
+    let data = await response.json();
+    
+    // AI ka asli jawab dhoondhna
+    let botReply = data.candidates[0].content.parts[0].text;
+
+    // Loading ko hatana aur asli jawab dikhana
+    document.getElementById('loading').remove();
+    
+    // Jawab ko screen par print karna (Line breaks ke sath)
+    chat.innerHTML += "<b>🤖 Bot:</b> " + botReply.replace(/\n/g, "<br>") + "<br><br>";
+
+  } catch (error) {
+    // Agar internet nahi chala ya koi error aayi
+    document.getElementById('loading').remove();
+    chat.innerHTML += "<b style='color: red;'>Bot: Error aa gaya! Internet check karo 😢</b><br><br>";
+  }
+}
+
+</script>
 
 </body>
 </html>
