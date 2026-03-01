@@ -1,77 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mini AI Chatbot</title>
   <style>
-    body { font-family: Arial; background: #f2f2f2; padding: 20px; }
-    .chatbox { background: white; padding: 15px; border-radius: 10px; max-width: 400px; margin: auto; }
-    #messages { min-height: 150px; margin-bottom: 10px; }
-    input { width: 70%; padding: 8px; }
-    button { padding: 8px; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .chat-container { width: 100%; max-width: 400px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; height: 90vh; }
+    .header { background: #007bff; color: white; padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; }
+    #messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #ffffff; }
+    .user-msg { align-self: flex-end; background: #007bff; color: white; padding: 8px 12px; border-radius: 15px 15px 0 15px; max-width: 80%; }
+    .bot-msg { align-self: flex-start; background: #e9ecef; color: #333; padding: 8px 12px; border-radius: 15px 15px 15px 0; max-width: 80%; line-height: 1.4; }
+    .input-area { display: flex; padding: 10px; border-top: 1px solid #ddd; background: #fff; }
+    input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px; outline: none; }
+    button { background: #007bff; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    #loading { font-style: italic; color: #888; font-size: 0.9rem; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-  <div class="chatbox">
-    <h3>🤖 Mini AI Chatbot</h3>
-    <div id="messages"></div>
-    
-    <input type="text" id="userInput" placeholder="Type message..." />
-    <button onclick="send()">Send</button>
+<div class="chat-container">
+  <div class="header">🤖 Mini AI Chatbot</div>
+  <div id="messages"></div>
+  <div id="loading-area"></div>
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Kuch bhi puchiye..." onkeypress="if(event.key==='Enter') send()">
+    <button onclick="send()">🚀</button>
   </div>
+</div>
 
-  <script>
-    async function send() {
-      var userInputField = document.getElementById("userInput");
-      var userMessage = userInputField.value;
-      var chat = document.getElementById("messages");
+<script>
+async function send() {
+  const input = document.getElementById("userInput");
+  const chat = document.getElementById("messages");
+  const loader = document.getElementById("loading-area");
+  const message = input.value.trim();
 
-      if (userMessage.trim() === "") return;
+  if (!message) return;
 
-      chat.innerHTML += "<b>You:</b> " + userMessage + "<br>";
-      userInputField.value = "";
+  // 1. User ka message dikhao
+  chat.innerHTML += `<div class="user-msg">${message}</div>`;
+  input.value = "";
+  chat.scrollTop = chat.scrollHeight;
 
-      chat.innerHTML += "<b id='loading' style='color: gray;'>Bot: Soch raha hai... 🤔<br></b>";
+  // 2. Loading dikhao
+  loader.innerHTML = `<div id="loading" style="padding-left: 15px;">Bot soch raha hai... 🤔</div>`;
 
-      // Aapki API Key
-      var apiKey = "AIzaSyAWUSznUOoT2tMyIZGJEIal-5tgYp9PzIs"; 
-      var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
+  // 3. API Details
+  const apiKey = "AIzaSyAWUSznUOoT2tMyIZGJEIal-5tgYp9PzIs"; 
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + apiKey;
 
-      try {
-        let response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: userMessage }] }]
-          })
-        });
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: message }] }]
+      })
+    });
 
-        let data = await response.json();
-        
-        // Loading hatayein
-        if(document.getElementById('loading')) {
-            document.getElementById('loading').remove();
-        }
-        
-        // Agar Google API ne error diya (jaise Invalid Key)
-        if (data.error) {
-            chat.innerHTML += "<b style='color: red;'>API Error: " + data.error.message + "</b><br><br>";
-            return;
-        }
+    const data = await response.json();
+    loader.innerHTML = ""; // Loading hatao
 
-        // Asli Jawab
-        let botReply = data.candidates[0].content.parts[0].text;
-        chat.innerHTML += "<b>🤖 Bot:</b> " + botReply.replace(/\n/g, "<br>") + "<br><br>";
-
-      } catch (error) {
-        // Agar internet ka error ho
-        if(document.getElementById('loading')) {
-            document.getElementById('loading').remove();
-        }
-        chat.innerHTML += "<b style='color: red;'>App Error: " + error.message + "</b><br><br>";
-      }
+    if (data.error) {
+      chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>API Error:</b> ${data.error.message}</div>`;
+    } else {
+      const botReply = data.candidates[0].content.parts[0].text;
+      chat.innerHTML += `<div class="bot-msg">${botReply.replace(/\n/g, "<br>")}</div>`;
     }
-  </script>
+  } catch (error) {
+    loader.innerHTML = "";
+    chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>App Error:</b> Connection failed!</div>`;
+  }
+  
+  chat.scrollTop = chat.scrollHeight;
+}
+</script>
 
 </body>
 </html>
