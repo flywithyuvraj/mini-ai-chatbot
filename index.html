@@ -37,18 +37,17 @@ async function send() {
 
   if (!message) return;
 
-  // 1. User ka message dikhao
   chat.innerHTML += `<div class="user-msg">${message}</div>`;
   input.value = "";
   chat.scrollTop = chat.scrollHeight;
 
-  // 2. Loading dikhao
   loader.innerHTML = `<div id="loading" style="padding: 10px 15px; color: #888;">Bot soch raha hai... 🤔</div>`;
 
-  // 3. API Details
   // IMPORTANT: Apni NAYI API key yahan niche " " ke beech mein dalo
   const apiKey = "AIzaSyC_OCHj5YDRRzarQGANsu6HxdNXT9yucdk"; 
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
+  
+  // Is URL mein hum gemini-1.5-flash-latest use kar rahe hain
+  const url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + apiKey;
 
   try {
     const response = await fetch(url, {
@@ -60,7 +59,7 @@ async function send() {
     });
 
     const data = await response.json();
-    loader.innerHTML = ""; // Loading hatao
+    loader.innerHTML = ""; 
 
     if (data.error) {
       chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>Error:</b> ${data.error.message}</div>`;
@@ -70,7 +69,7 @@ async function send() {
     }
   } catch (error) {
     loader.innerHTML = "";
-    chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>App Error:</b> Connection failed!</div>`;
+    chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>App Error:</b> Check your internet!</div>`;
   }
   
   chat.scrollTop = chat.scrollHeight;
