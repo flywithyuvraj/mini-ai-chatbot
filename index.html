@@ -13,7 +13,7 @@
     .bot-msg { align-self: flex-start; background: #e9ecef; color: #333; padding: 8px 12px; border-radius: 15px 15px 15px 0; max-width: 80%; line-height: 1.4; }
     .input-area { display: flex; padding: 10px; border-top: 1px solid #ddd; background: #fff; }
     input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px; outline: none; }
-    button { background: #007bff; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    button { background: #007bff; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
   </style>
 </head>
 <body>
@@ -37,14 +37,17 @@ async function send() {
 
   if (!message) return;
 
+  // 1. User ka message dikhao
   chat.innerHTML += `<div class="user-msg">${message}</div>`;
   input.value = "";
   chat.scrollTop = chat.scrollHeight;
 
+  // 2. Loading dikhao
   loader.innerHTML = `<div id="loading" style="padding: 10px 15px; color: #888;">Bot soch raha hai... 🤔</div>`;
 
-  const apiKey = "AIzaSyAWUSznUOoT2tMyIZGJEIal-5tgYp9PzIs"; 
-  // Naya model name: gemini-2.0-flash
+  // 3. API Details
+  // IMPORTANT: Apni NAYI API key yahan niche " " ke beech mein dalo
+  const apiKey = "AIzaSyA7meMw0Ra3UAZVLqp3Q6q2BDlD3YNfR4E"; 
   const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
 
   try {
@@ -57,7 +60,7 @@ async function send() {
     });
 
     const data = await response.json();
-    loader.innerHTML = ""; 
+    loader.innerHTML = ""; // Loading hatao
 
     if (data.error) {
       chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>Error:</b> ${data.error.message}</div>`;
@@ -67,7 +70,7 @@ async function send() {
     }
   } catch (error) {
     loader.innerHTML = "";
-    chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>App Error:</b> Check your internet!</div>`;
+    chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>App Error:</b> Connection failed!</div>`;
   }
   
   chat.scrollTop = chat.scrollHeight;
@@ -76,4 +79,3 @@ async function send() {
 
 </body>
 </html>
- 
