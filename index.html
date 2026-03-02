@@ -37,18 +37,18 @@ async function send() {
 
   if (!message) return;
 
-  // 1. User Message Display
+  // 1. User ka message dikhao
   chat.innerHTML += `<div class="user-msg">${message}</div>`;
   input.value = "";
   chat.scrollTop = chat.scrollHeight;
 
-  // 2. Loading Indicator
+  // 2. Loading dikhao
   loader.innerHTML = `<div id="loading" style="padding: 10px 15px; color: #888;">Bot soch raha hai... 🤔</div>`;
 
-  // 3. API Setup (Stable Version 1.5 Flash)
-  // Agat aapke pas nayi key hai, toh " " ke beech mein paste karein
+  // 3. API Details
+  // IMPORTANT: Apni NAYI API key yahan niche " " ke beech mein dalo
   const apiKey = "AIzaSyC_OCHj5YDRRzarQGANsu6HxdNXT9yucdk"; 
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
 
   try {
     const response = await fetch(url, {
@@ -60,10 +60,9 @@ async function send() {
     });
 
     const data = await response.json();
-    loader.innerHTML = ""; 
+    loader.innerHTML = ""; // Loading hatao
 
     if (data.error) {
-      // Agar Quota error aaye toh yahan message dikhega
       chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>Error:</b> ${data.error.message}</div>`;
     } else {
       const botReply = data.candidates[0].content.parts[0].text;
