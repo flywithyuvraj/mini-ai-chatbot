@@ -6,10 +6,10 @@
     <title>Mini AI Chatbot</title>
     <style>
         body { font-family: sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
-        .chat-card { width: 100%; max-width: 400px; background: white; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; height: 80vh; }
+        .chat-card { width: 100%; max-width: 400px; background: white; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; height: 85vh; }
         .header { background: #007bff; color: white; padding: 15px; text-align: center; font-weight: bold; }
         #chat-window { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 8px 12px; border-radius: 10px; max-width: 80%; word-wrap: break-word; }
+        .msg { padding: 8px 12px; border-radius: 10px; max-width: 80%; word-wrap: break-word; line-height: 1.4; }
         .user { align-self: flex-end; background: #007bff; color: white; }
         .bot { align-self: flex-start; background: #e9ecef; color: #333; }
         .input-box { display: flex; padding: 10px; border-top: 1px solid #ddd; }
@@ -23,7 +23,7 @@
     <div class="header">🤖 AI Chatbot</div>
     <div id="chat-window"></div>
     <div class="input-box">
-        <input type="text" id="userInput" placeholder="Ask me something...">
+        <input type="text" id="userInput" placeholder="Ask me something..." onkeypress="if(event.key==='Enter') send()">
         <button onclick="send()">🚀</button>
     </div>
 </div>
@@ -35,18 +35,17 @@ async function send() {
     const text = input.value.trim();
     if (!text) return;
 
+    // User Message
     chat.innerHTML += `<div class="msg user">${text}</div>`;
     input.value = "";
     
-    // Loading indicator
+    // Loading Indicator
     const loadingId = "load-" + Date.now();
-    chat.innerHTML += `<div class="msg bot" id="${loadingId}">...</div>`;
+    chat.innerHTML += `<div class="msg bot" id="${loadingId}">Bot soch raha hai... 🤔</div>`;
     chat.scrollTop = chat.scrollHeight;
 
-    // IMPORTANT: Yahan apni naye account wali API Key dalo
+    // NAYE ACCOUNT WALI API KEY YAHAN DALO
     const apiKey = "AIzaSyC_OCHj5YDRRzarQGANsu6HxdNXT9yucdk";
-    
-    // Sabse stable URL format
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     try {
@@ -57,16 +56,17 @@ async function send() {
         });
 
         const data = await response.json();
-        document.getElementById(loadingId).remove();
+        const loader = document.getElementById(loadingId);
 
         if (data.error) {
-            chat.innerHTML += `<div class="msg bot" style="color:red">Error: ${data.error.message}</div>`;
+            loader.style.color = "red";
+            loader.innerHTML = `<b>API Error:</b> ${data.error.message}`;
         } else {
             const reply = data.candidates[0].content.parts[0].text;
-            chat.innerHTML += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`;
+            loader.innerHTML = reply.replace(/\n/g, '<br>');
         }
     } catch (e) {
-        document.getElementById(loadingId).innerText = "Connection Error! Check Internet.";
+        document.getElementById(loadingId).innerHTML = "<b style='color:red'>Network Error! Check Internet.</b>";
     }
     chat.scrollTop = chat.scrollHeight;
 }
