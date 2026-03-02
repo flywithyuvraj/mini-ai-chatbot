@@ -43,10 +43,10 @@ async function send() {
 
   loader.innerHTML = `<div id="loading" style="padding: 10px 15px; color: #888;">Bot soch raha hai... 🤔</div>`;
 
-  // IMPORTANT: Apni NAYI API key yahan niche " " ke beech mein dalo
+  // APNI NAYI API KEY YAHAN DALO
   const apiKey = "AIzaSyC_OCHj5YDRRzarQGANsu6HxdNXT9yucdk"; 
   
-  // Is URL mein hum gemini-1.5-flash-latest use kar rahe hain
+  // FIXED URL: models/gemini-1.5-flash bina version mismatch ke
   const url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + apiKey;
 
   try {
@@ -69,7 +69,7 @@ async function send() {
     }
   } catch (error) {
     loader.innerHTML = "";
-    chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>App Error:</b> Check your internet!</div>`;
+    chat.innerHTML += `<div class="bot-msg" style="color: red;"><b>App Error:</b> Connection failed!</div>`;
   }
   
   chat.scrollTop = chat.scrollHeight;
@@ -78,4 +78,3 @@ async function send() {
 
 </body>
 </html>
- 
